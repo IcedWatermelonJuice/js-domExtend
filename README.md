@@ -2,7 +2,8 @@
 * author:tutu辣么可爱  
 * day:2022.4.27 GMT+0800 (中国标准时间)  
 * description:原生js增强插件，将部分原生dom对象方法模仿jQuery进行二次封装，便于使用  
-* license:MIT License
+* version:1.1  
+* license:MIT License  
 
 ## DOM对象方法 
 
