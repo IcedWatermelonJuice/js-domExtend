@@ -1,60 +1,16 @@
 // ==UserScript==
 // @name         js-domExtend
 // @namespace    http://tampermonkey.net/
-// @version      1.0
-// @description  原生js增强插件，将部分原生dom对象方法模仿jQuery进行二次封装，便于使用
+// @version      1.3
+// @description  轻量级原生js增强插件，将部分原生dom对象方法模仿jQuery进行二次封装，便于使用
 // @author       tutu辣么可爱
-// @dayr         2022.4.27 GMT+0800 (中国标准时间)
+// @dayr         2022.4.28 GMT+0800 (中国标准时间)
 // @license      MIT License
+// @note         相关参考信息请前往greasyfork仓库或github仓库
+// @note         greasyfork仓库:https://greasyfork.org/zh-CN/scripts/444044-js-domextend
+// @note         github仓库:https://github.com/IcedWatermelonJuice/js-domExtend
 // ==/UserScript==
 
-/*
-*function $ele(dom, dom2)
-*parameter0 dom:需要创建的dom对象的html字符串或者选择器字符串
-*parameter1 dom2:选择器模式时生效，选择器的父节点，默认值document
-*note:本质是对createElement、querySelectorAll的二次封装，使用体验类似jQuery的$()方法
-*
-*function $eleFn(dom, dom2)
-*parameter0 dom:选择器字符串
-*parameter1 dom2:选择器的父节点，默认值document
-*note:返回一组方法，用于对需要选择的dom对象进行监控，具体用法见$eleFn.listen和$eleFn.ready部分
-*
-*function $eleFn.listen(callback, interval)
-*parameter0 callback:对dom对象监控时循环执行的回调方法
-*parameter1 interval:dom对象的监控时间间隔，默认值500
-*note:返回定时器ID。本质是调用setInterval不断执行$ele方法检测dom对象是否存在
-*
-*function $eleFn.ready(callback, interval)
-*parameter0 callback:dom对象检测到存在时的回调方法
-*parameter1 timeout:dom对象检测存在的超时时长
-*note:返回定时器ID。本质是调用$eleFn.listen检测对象是否存在，setTimeout控制超时时长
-*
-*function DOM.attr(key, val)
-*parameter0 key:dom对象属性名
-*parameter1 val:dom对象属性值
-*note:没有val则返回对应属性名的值；有val则进行属性设置，返回dom对象本身。本质是对getAttribute、setAttribute、removeAttribute的二次封装，使用体验类似jQuery的$.attr方法
-*
-*function DOM.css(key, val)
-*parameter0 key:dom对象css样式属性名
-*parameter1 val:dom对象css样式属性值
-*note:没有val则返回对应属性名的值；有val则进行属性设置，返回dom对象本身。本质是对getComputedStyle、DOM.style.setProperty的二次封装，使用体验类似jQuery的$.css方法
-*
-*function DOM.hide()
-*note:调用DOM.css隐藏dom对象，返回dom对象本身。本质是将dom对象样式display设置为none，使用体验类似jQuery的$.hide方法。DOM.hide支持nodeList对象
-*
-*function DOM.show()
-*note:调用DOM.css显示dom对象，返回dom对象本身。本质是将dom对象样式display还原为原属性值，使用体验类似jQuery的$.show方法。DOM.show支持nodeList对象
-*
-*function DOM.insert(dom, position)
-*parameter0 dom:选择器字符串、dom对象或多个dom对象组成的Array数组
-*parameter1 position:插入位置，默认值end
-*note:返回值为dom节点本身。position为start时，插入到DOM父节点开头；position为end时，插入到DOM父节点结尾；position为before时，插入到dom节点前面；position为after时，插入到dom节点后面。本质是对insertBefore、append的二次封装
-*
-*function DOM.replace(dom)
-*parameter dom:选择器字符串、dom对象或多个dom对象组成的Array数组
-*note:返回值为新dom节点。本质是调用DOM.insert后将原dom节点remove
-*
-*/
 function $ele(dom, dom2 = document) {
 	switch (dom.slice(0, 1)) {
 		case "<":
@@ -68,6 +24,7 @@ function $ele(dom, dom2 = document) {
 	}
 	return dom2.length > 1 ? dom2 : dom2[0]
 }
+
 function $eleFn(dom, dom2 = document) {
 	return {
 		data: [dom, dom2],
@@ -133,8 +90,9 @@ HTMLElement.prototype.show = function() {
 	this.css("display", backup !== "none" ? backup : "");
 	return this;
 }
-HTMLElement.prototype.insert = function(dom, position = "end") {
-	dom = typeof dom === "string" ? $ele(dom) : (Array.isArray(dom) ? dom : [dom]);
+HTMLElement.prototype.insert = function(dom, position = "end", reNew = false) {
+	dom = typeof dom === "string" ? $ele(dom) : dom;
+	dom = (Array.isArray(dom) || dom instanceof NodeList) ? dom : [dom];
 	switch (position) {
 		case "start":
 			Array.from(dom).reverse().forEach((e, i) => {
@@ -164,12 +122,65 @@ HTMLElement.prototype.insert = function(dom, position = "end") {
 			}
 			break;
 	}
-	return this;
+	if (reNew) {
+		return dom.length > 1 ? dom : dom[0]
+	} else {
+		return this
+	}
 }
 HTMLElement.prototype.replace = function(dom) {
-	dom = this.insert(dom, "before");
+	dom = this.insert(dom, "before", true);
 	this.remove();
 	return dom;
+}
+HTMLElement.prototype.findNode = function(nodeName) {
+	var nodeArray = [];
+	if (!this.firstChild) {
+		return null
+	}
+	this.childNodes.forEach((e, i) => {
+		if (new RegExp(`^${nodeName}$`, "i").test(e.nodeName)) {
+			nodeArray.push(e);
+		} else {
+			let temp = e.findNode(nodeName);
+			nodeArray = nodeArray.concat(Array.isArray(temp) ? temp : []);
+		}
+	})
+	return nodeArray[0] ? nodeArray : null
+}
+HTMLElement.prototype.eleText = function(val, remainDom = false) {
+	if (typeof val !== "string") {
+		return this.innerText
+	} else {
+		if (remainDom) {
+			var textNode = this.findNode("#text");
+			if (Array.isArray(textNode)) {
+				textNode.forEach((e, i) => {
+					if (val === "") {
+						e.nodeValue = "";
+					} else {
+						let textLength = i >= (textNode.length - 1) ? val.length : e.length;
+						e.nodeValue = val.slice(0, textLength);
+						val = val.slice(textLength);
+					}
+				})
+			}
+		} else {
+			this.innerText = val;
+		}
+		return this
+	}
+}
+
+NodeList.prototype.attr = function(key, val) {
+	this.forEach((e, i) => {
+		e.attr(key, val)
+	})
+}
+NodeList.prototype.css = function(key, val) {
+	this.forEach((e, i) => {
+		e.css(key, val)
+	})
 }
 NodeList.prototype.hide = function() {
 	this.forEach((e, i) => {
@@ -180,4 +191,20 @@ NodeList.prototype.show = function() {
 	this.forEach((e, i) => {
 		e.show();
 	})
+}
+NodeList.prototype.findNode = function(nodeName) {
+	var nodeArray = []
+	this.forEach((e, i) => {
+		let temp = e.findNode(nodeName);
+		nodeArray = nodeArray.concat(Array.isArray(temp) ? temp : []);
+	})
+	return nodeArray[0] ? nodeArray : null
+}
+NodeList.prototype.eleText = function(val, remainDom = false) {
+	var res = "";
+	this.forEach((e, i) => {
+		let temp = e.eleText(val, remainDom)
+		res += typeof temp === "string" ? temp : "";
+	})
+	return typeof val === "string" ? this : res
 }
