@@ -1,5 +1,5 @@
 ## js-domExtend
-* author:tutu辣么可爱  
+* author:tutu辣么可爱(greasyfork)   IcedWatermelonJuice(github)
 * day:2022.4.28 GMT+0800 (中国标准时间)  
 * description:轻量级原生js增强插件，将部分原生dom对象方法模仿jQuery进行二次封装，便于使用  
 * version:1.3   
