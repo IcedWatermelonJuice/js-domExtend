@@ -1,9 +1,26 @@
 ## js-domExtend
-* author:tutu辣么可爱(greasyfork)   IcedWatermelonJuice(github)
-* day:2022.4.28 GMT+0800 (中国标准时间)  
-* description:轻量级原生js增强插件，将部分原生dom对象方法模仿jQuery进行二次封装，便于使用  
-* version:1.3   
-* license:MIT License  
+<table>
+  <tr>
+    <td>作者 ( author )</td>
+    <td>tutu辣么可爱(greasyfork)<br>IcedWatermelonJuice(github)</td>
+  </tr>
+  <tr>
+    <td>描述 ( description )</td>
+    <td>轻量级原生js增强插件<br>将部分原生dom对象方法模仿jQuery进行二次封装，便于使用</td>
+  </tr>
+  <tr>
+    <td>最后更新时间 ( day )</td>
+    <td>2022.4.28 GMT+0800 (中国标准时间)</td>
+  </tr>
+  <tr>
+    <td>最新版本 ( version )</td>
+    <td>1.3</td>
+  </tr>
+  <tr>
+    <td>开源许可 ( license )</td>
+    <td>MIT</td>
+  </tr>
+ </table>
 
 ## DOM对象方法 
 
