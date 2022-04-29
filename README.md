@@ -10,17 +10,29 @@
   </tr>
   <tr>
     <td>最后更新时间 ( day )</td>
-    <td>2022.4.28 GMT+0800 (中国标准时间)</td>
+    <td>2022.4.29 GMT+0800 (中国标准时间)</td>
   </tr>
   <tr>
     <td>最新版本 ( version )</td>
-    <td>1.3</td>
+    <td>1.5</td>
   </tr>
   <tr>
     <td>开源许可 ( license )</td>
     <td>MIT</td>
   </tr>
  </table>
+
+## 参考DEMO
+
+
+```javascript
+$domExtendJS();//初始化dom对象方法，全局只需且必须使用一次
+var demo=$ele("#demo");//获取dom对象，此时等价于document.querySelector("#demo")
+demo.attr("demo-data","demo-attr");//设置dom对象属性
+var demoList=$ele(".demo")//获取nodeList对象，此时等价于document.querySelectorAll(".demo")
+demoList.eleText("demo-eleText");//改变nodeList对象里每一个dom对象的文本内容
+```
+
 
 ## DOM对象方法 
 
@@ -92,3 +104,6 @@
 * parameter1 timeout:dom对象存在性检测的超时时长  
 * return:定时器ID  
 * note:本质是调用$eleFn.listen检测对象是否存在，setTimeout控制超时时长
+
+3.function $domExtendJS()
+* note:初始化dom对象方法，防止在油猴脚本中调用时出现错误
