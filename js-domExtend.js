@@ -1,18 +1,18 @@
 // ==UserScript==
 // @name         js-domExtend
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  轻量级原生js增强插件，将部分原生dom对象方法模仿jQuery进行二次封装，便于使用
 // @author       tutu辣么可爱
-// @dayr         2022.4.29 GMT+0800 (中国标准时间)
+// @day          2022.5.27 GMT+0800 (中国标准时间)
 // @license      MIT License
 // @note         相关参考信息请前往greasyfork仓库或github仓库
 // @note         greasyfork仓库:
 // @note         github仓库:https://github.com/IcedWatermelonJuice/js-domExtend
 // ==/UserScript==
- 
+
 function $ele(dom, dom2 = document) {
-	switch (dom.slice(0, 1)) {
+	switch (dom.trim().slice(0, 1)) {
 		case "<":
 			dom2 = document.createElement("div");
 			dom2.innerHTML = dom;
@@ -24,7 +24,7 @@ function $ele(dom, dom2 = document) {
 	}
 	return dom2.length > 1 ? dom2 : dom2[0]
 }
- 
+
 function $eleFn(dom, dom2 = document) {
 	return {
 		data: [dom, dom2],
@@ -48,9 +48,10 @@ function $eleFn(dom, dom2 = document) {
 		}
 	}
 }
- 
+
 function $domExtendJS() {
-	HTMLElement.prototype.attr = function(key, val) {
+	//Element
+	Element.prototype.attr = function(key, val) {
 		if (typeof key === "string") {
 			if (/string|boolean/.test(typeof val)) {
 				if (!val && val !== false) {
@@ -64,7 +65,7 @@ function $domExtendJS() {
 			}
 		}
 	}
-	HTMLElement.prototype.css = function(key, val) {
+	Element.prototype.css = function(key, val) {
 		if (typeof key === "string") {
 			if (/string|boolean/.test(typeof val)) {
 				this.style.setProperty(key, val);
@@ -81,17 +82,17 @@ function $domExtendJS() {
 		}
 		return this;
 	}
-	HTMLElement.prototype.hide = function() {
+	Element.prototype.hide = function() {
 		this.setAttribute("display_backup", this.css("display"));
 		this.css("display", "none")
 		return this;
 	}
-	HTMLElement.prototype.show = function() {
+	Element.prototype.show = function() {
 		var backup = this.attr("display_backup") ? this.attr("display_backup") : "";
 		this.css("display", backup !== "none" ? backup : "");
 		return this;
 	}
-	HTMLElement.prototype.insert = function(dom, position = "end", reNew = false) {
+	Element.prototype.insert = function(dom, position = "end", reNew = false) {
 		dom = typeof dom === "string" ? $ele(dom) : dom;
 		dom = (Array.isArray(dom) || dom instanceof NodeList) ? dom : [dom];
 		switch (position) {
@@ -129,12 +130,12 @@ function $domExtendJS() {
 			return this
 		}
 	}
-	HTMLElement.prototype.replace = function(dom) {
+	Element.prototype.replace = function(dom) {
 		dom = this.insert(dom, "before", true);
 		this.remove();
 		return dom;
 	}
-	HTMLElement.prototype.findNode = function(nodeName) {
+	Element.prototype.findNode = function(nodeName) {
 		var nodeArray = [];
 		if (!this.firstChild) {
 			return null
@@ -144,12 +145,12 @@ function $domExtendJS() {
 				nodeArray.push(e);
 			} else {
 				let temp = e.findNode(nodeName);
-				nodeArray = nodeArray.concat(Array.isArray(temp) ? temp : []);
+				nodeArray = nodeArray.concat(Array.isArray(temp) ? temp : (temp ? [temp] : []));
 			}
 		})
-		return nodeArray[0] ? nodeArray : null
+		return nodeArray.length > 1 ? nodeArray : nodeArray[0]
 	}
-	HTMLElement.prototype.eleText = function(val, remainDom = false) {
+	Element.prototype.eleText = function(val, remainDom = false) {
 		if (typeof val !== "string") {
 			return this.innerText
 		} else {
@@ -172,7 +173,23 @@ function $domExtendJS() {
 			return this
 		}
 	}
- 
+	Element.prototype.eleHTML = function(val) {
+		if (typeof val !== "string") {
+			return this.innerHTML
+		} else {
+			this.innerHTML = val;
+			return this
+		}
+	}
+	Element.prototype.eleVal = function(val) {
+		if (typeof val !== "string" && typeof val !== "boolean") {
+			return this.value
+		} else {
+			this.value = val;
+			return this
+		}
+	}
+	//NodeList
 	NodeList.prototype.attr = function(key, val) {
 		this.forEach((e, i) => {
 			e.attr(key, val)
@@ -209,6 +226,14 @@ function $domExtendJS() {
 		var res = "";
 		this.forEach((e, i) => {
 			let temp = e.eleText(val, remainDom)
+			res += typeof temp === "string" ? temp : "";
+		})
+		return typeof val === "string" ? this : res
+	}
+	NodeList.prototype.eleHTML = function(val) {
+		var res = "";
+		this.forEach((e, i) => {
+			let temp = e.eleHTML(val)
 			res += typeof temp === "string" ? temp : "";
 		})
 		return typeof val === "string" ? this : res
