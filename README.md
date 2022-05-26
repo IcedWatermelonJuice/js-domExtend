@@ -10,11 +10,11 @@
   </tr>
   <tr>
     <td>最后更新时间 ( day )</td>
-    <td>2022.4.29 GMT+0800 (中国标准时间)</td>
+    <td>2022.5.27 GMT+0800 (中国标准时间)</td>
   </tr>
   <tr>
     <td>最新版本 ( version )</td>
-    <td>1.5</td>
+    <td>1.6</td>
   </tr>
   <tr>
     <td>开源许可 ( license )</td>
@@ -76,8 +76,18 @@ demoList.eleText("demo-eleText");//改变nodeList对象里每一个dom对象的�
 8.function DOM.eleText(val, remainDom)  
 * parameter0 val:需要更改的文本字符串  
 * parameter1 remainDom:是否保留原有的dom结构。布尔型可选参数，默认值false。true表示更改text时不影响原有的dom结构;  false表示更改text时会影响原有的dom结构  
-* return:原dom对象、nodeList对象或其文本字符  
+* return:原dom对象、nodeList对象或其文本字符串  
 * note:支持nodeList对象。当val不为字符串时，调用innerText返回文本字符串；当val为字符串时，若remainDom为false，直接调用innerText更改文本，remainDom为true时通过DOM.findNode寻找#text文本节点，仅对文本节点进行更改。remainDom为false时，使用体验类似jQuery的$.text方法  
+
+9.function DOM.eleHTML(val)  
+* parameter0 val:需要更改的html字符串  
+* return:原dom对象、nodeList对象或其html字符串  
+* note:支持nodeList对象。当val不为字符串时，调用innerHTML返回html字符串；当val为字符串时，直接调用innerHTML更改html，使用体验类似jQuery的$.html方法  
+
+10.function DOM.eleVal(val)  
+* parameter0 val:需要更改的dom对象的value值  
+* return:原dom对象或其value值  
+* note:当val不为字符串时，返回value；当val为字符串时，更改value值，使用体验类似jQuery的$.val方法 
 
 ## 其他方法
 
